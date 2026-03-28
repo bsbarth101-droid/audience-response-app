@@ -7,7 +7,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Segoe UI', Arial, sans-serif; background: #0f172a; color: #f1f5f9; min-height: 100vh; }
+  html, body { height: 100%; overflow: hidden; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #0f172a; color: #f1f5f9; }
 
   #login-screen {
     display: flex; flex-direction: column; align-items: center;
@@ -26,7 +27,7 @@
   #login-screen button:hover { background: #1d4ed8; }
   #login-error { color: #f87171; font-size: 0.9rem; }
 
-  #admin-screen { display: none; flex-direction: column; height: 100vh; overflow: hidden; }
+  #admin-screen { display: none; flex-direction: column; height: 100vh; overflow: hidden; position: relative; }
   header {
     background: #1e293b; padding: 14px 24px;
     display: flex; align-items: center; justify-content: space-between;
@@ -46,8 +47,11 @@
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
   .main-grid {
-    display: grid; grid-template-columns: 320px 1fr;
-    flex: 1; min-height: 0; overflow: hidden;
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    position: absolute;
+    top: 57px; left: 0; right: 0; bottom: 0;
+    overflow: hidden;
   }
 
   #sidebar {
@@ -409,10 +413,3 @@ function downloadQR() {
 </script>
 </body>
 </html>
-
-
-Claude is AI and can make mistakes. Please double-check responses.
-Admin · HTML
-Copy
-
-
