@@ -26,11 +26,12 @@
   #login-screen button:hover { background: #1d4ed8; }
   #login-error { color: #f87171; font-size: 0.9rem; }
 
-  #admin-screen { display: none; flex-direction: column; min-height: 100vh; }
+  #admin-screen { display: none; flex-direction: column; height: 100vh; overflow: hidden; }
   header {
     background: #1e293b; padding: 14px 24px;
     display: flex; align-items: center; justify-content: space-between;
     border-bottom: 1px solid #334155;
+    flex-shrink: 0;
   }
   header h1 { font-size: 1.2rem; color: #93c5fd; }
   #live-badge {
@@ -44,11 +45,15 @@
   }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-  .main-grid { display: grid; grid-template-columns: 320px 1fr; flex: 1; min-height: 0; }
+  .main-grid {
+    display: grid; grid-template-columns: 320px 1fr;
+    flex: 1; min-height: 0; overflow: hidden;
+  }
 
   #sidebar {
     background: #1e293b; border-right: 1px solid #334155;
-    padding: 20px; display: flex; flex-direction: column; gap: 20px; overflow-y: auto;
+    padding: 20px; display: flex; flex-direction: column; gap: 20px;
+    overflow-y: auto; height: 100%;
   }
   .section-title {
     font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em;
@@ -83,7 +88,10 @@
   .btn-sm { padding: 7px 14px; font-size: 0.82rem; }
   .flex-row { display: flex; gap: 8px; flex-wrap: wrap; }
 
-  #chart-area { padding: 28px 32px; display: flex; flex-direction: column; gap: 18px; }
+  #chart-area {
+    padding: 28px 32px; display: flex; flex-direction: column; gap: 18px;
+    overflow-y: auto; height: 100%;
+  }
   #chart-title { font-size: 1.3rem; font-weight: 700; color: #e2e8f0; }
   #vote-count { font-size: 0.9rem; color: #64748b; }
   #chart-wrap { position: relative; flex: 1; min-height: 320px; max-height: 520px; }
@@ -401,3 +409,10 @@ function downloadQR() {
 </script>
 </body>
 </html>
+
+
+Claude is AI and can make mistakes. Please double-check responses.
+Admin · HTML
+Copy
+
+
