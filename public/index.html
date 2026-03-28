@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Audience Response</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #0f172a;
+    color: #f1f5f9;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  #status-banner {
+    font-size: 1.1rem;
+    color: #94a3b8;
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  #question-label {
+    font-size: 1rem;
+    color: #64748b;
+    text-align: center;
+    margin-bottom: 8px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  #vote-area {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 420px;
+  }
+  #buttons-grid {
+    display: grid;
+    gap: 14px;
+    width: 100%;
+    margin-top: 10px;
+  }
+  .vote-btn {
+    background: #1e3a5f;
+    border: 2px solid #2563eb;
+    color: #e2e8f0;
+    font-size: 2rem;
+    font-weight: 700;
+    border-radius: 16px;
+    padding: 22px 10px;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    user-select: none;
+  }
+  .vote-btn:hover { background: #2563eb; transform: scale(1.03); }
+  .vote-btn:active { transform: scale(0.97); }
+  .vote-btn.selected { background: #16a34a; border-color: #22c55e; color: #fff; }
+  #feedback {
+    margin-top: 20px;
+    font-size: 1rem;
+    color: #22c55e;
+    text-align: center;
+    min-height: 24px;
+  }
+  #feedback.error { color: #f87171; }
+  #q-progress { margin-bottom: 6px; font-size: 0.85rem; color: #475569; }
+</style>
+</head>
+<body>
+<div id="status-banner">Waiting for session to start…</div>
+<div id="vote-area">
+  <div id="q-progress"></div>
+  <div id="question-label">Select your answer</div>
+  <div id="buttons-grid"></div>
+  <div id="feedback"></div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io();
+  let fingerprint = sessionStorage.getItem('arf_fp');
+  if (!fingerprint) {
+    fingerprint = 'fp_' + Math.random().toString(36).slice(2) + Date.now();
+    sessionStorage.setItem('arf_fp', fingerprint);
+  }
+
+  let currentQ = 0;
+  let optionCount = 10;
+  let allowChanges = false;
+  let myVotes = {};
+
+  const statusBanner = document.getElementById('status-banner');
+  const voteArea = document.getElementById('vote-area');
+  const buttonsGrid = document.getElementById('buttons-grid');
+  const feedback = document.getElementById('feedback');
+  const qProgress = document.getElementById('q-progress');
+  const qLabel = document.getElementById('question-label');
+
+  function buildButtons(count) {
+    buttonsGrid.innerHTML = '';
+    const cols = count <= 2 ? count : count <= 4 ? 2 : count <= 6 ? 3 : count <= 8 ? 4 : 5;
+    buttonsGrid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+    for (let i = 0; i < count; i++) {
+      const btn = document.createElement('button');
+      btn.className = 'vote-btn';
+      btn.textContent = i;
+      btn.dataset.option = i;
+      if (myVotes[currentQ] === i) btn.classList.add('selected');
+      btn.addEventListener('click', () => castVote(i));
+      buttonsGrid.appendChild(btn);
+    }
+  }
+
+  function castVote(option) {
+    if (myVotes[currentQ] !== undefined && !allowChanges) {
+      showFeedback('You already answered this question.', true);
+      return;
+    }
+    socket.emit('vote', { fingerprint, option });
+  }
+
+  function showFeedback(msg, isError = false) {
+    feedback.textContent = msg;
+    feedback.className = isError ? 'error' : '';
+    clearTimeout(feedback._t);
+    if (!isError) feedback._t = setTimeout(() => feedback.textContent = '', 2500);
+  }
+
+  socket.on('session_state', (state) => {
+    if (!state.active) {
+      statusBanner.style.display = 'block';
+      statusBanner.textContent = 'Waiting for session to start…';
+      voteArea.style.display = 'none';
+    } else {
+      statusBanner.style.display = 'none';
+      voteArea.style.display = 'flex';
+      currentQ = state.currentQuestion;
+      optionCount = state.currentOptionCount;
+      allowChanges = state.allowChanges;
+      qProgress.textContent = `Question ${currentQ + 1} of ${state.totalQuestions}`;
+      qLabel.textContent = state.currentLabel || 'Select your answer';
+      buildButtons(optionCount);
+      feedback.textContent = myVotes[currentQ] !== undefined
+        ? (allowChanges ? 'You answered — you can change your answer.' : 'Answer recorded ✓')
+        : '';
+    }
+  });
+
+  socket.on('vote_accepted', ({ qIndex, option }) => {
+    myVotes[qIndex] = option;
+    document.querySelectorAll('.vote-btn').forEach(btn => {
+      btn.classList.toggle('selected', parseInt(btn.dataset.option) === option);
+    });
+    showFeedback(allowChanges ? `Answer: ${option} — you can change it.` : `Answer: ${option} recorded ✓`);
+  });
+
+  socket.on('vote_rejected', (msg) => showFeedback(msg, true));
+
+  document.addEventListener('keydown', (e) => {
+    const n = parseInt(e.key);
+    if (!isNaN(n) && n >= 0 && n < optionCount && voteArea.style.display !== 'none') {
+      castVote(n);
+    }
+  });
+
+  socket.on('connect', () => socket.emit('check_vote', { fingerprint }));
+  socket.on('vote_status', (votes) => { myVotes = votes; });
+</script>
+</body>
+</html>

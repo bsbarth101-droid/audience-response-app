@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Admin – Audience Response</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #0f172a; color: #f1f5f9; min-height: 100vh; }
+
+  #login-screen {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; min-height: 100vh; gap: 16px;
+  }
+  #login-screen h1 { font-size: 1.8rem; color: #93c5fd; }
+  #login-screen input {
+    padding: 12px 18px; border-radius: 10px; border: 2px solid #334155;
+    background: #1e293b; color: #f1f5f9; font-size: 1rem; width: 260px; outline: none;
+  }
+  #login-screen input:focus { border-color: #3b82f6; }
+  #login-screen button {
+    padding: 12px 32px; background: #2563eb; color: #fff;
+    border: none; border-radius: 10px; font-size: 1rem; cursor: pointer;
+  }
+  #login-screen button:hover { background: #1d4ed8; }
+  #login-error { color: #f87171; font-size: 0.9rem; }
+
+  #admin-screen { display: none; flex-direction: column; min-height: 100vh; }
+  header {
+    background: #1e293b; padding: 14px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid #334155;
+  }
+  header h1 { font-size: 1.2rem; color: #93c5fd; }
+  #live-badge {
+    display: none; align-items: center; gap: 6px;
+    background: #14532d; color: #4ade80; padding: 4px 12px;
+    border-radius: 999px; font-size: 0.78rem; font-weight: 700;
+  }
+  #live-badge .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #4ade80; animation: pulse 1.2s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  .main-grid { display: grid; grid-template-columns: 320px 1fr; flex: 1; min-height: 0; }
+
+  #sidebar {
+    background: #1e293b; border-right: 1px solid #334155;
+    padding: 20px; display: flex; flex-direction: column; gap: 20px; overflow-y: auto;
+  }
+  .section-title {
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: #64748b; margin-bottom: 8px;
+  }
+  label { font-size: 0.9rem; color: #94a3b8; display: block; margin-bottom: 4px; }
+  input[type="number"], input[type="text"], select {
+    width: 100%; padding: 9px 12px; border-radius: 8px;
+    border: 1.5px solid #334155; background: #0f172a; color: #f1f5f9;
+    font-size: 0.95rem; outline: none;
+  }
+  input:focus, select:focus { border-color: #3b82f6; }
+  #questions-setup { display: flex; flex-direction: column; gap: 12px; }
+  .q-row { background: #0f172a; border-radius: 10px; padding: 12px; border: 1px solid #1e3a5f; }
+  .q-row label { font-size: 0.8rem; }
+  .q-row input { margin-top: 4px; padding: 7px 10px; font-size: 0.85rem; }
+  .q-title { font-size: 0.85rem; color: #60a5fa; margin-bottom: 8px; font-weight: 600; }
+
+  .btn {
+    padding: 10px 18px; border-radius: 9px; border: none;
+    font-size: 0.9rem; cursor: pointer; font-weight: 600; transition: background 0.15s, opacity 0.15s;
+  }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-primary { background: #2563eb; color: #fff; }
+  .btn-primary:hover:not(:disabled) { background: #1d4ed8; }
+  .btn-success { background: #16a34a; color: #fff; }
+  .btn-success:hover:not(:disabled) { background: #15803d; }
+  .btn-danger { background: #dc2626; color: #fff; }
+  .btn-danger:hover:not(:disabled) { background: #b91c1c; }
+  .btn-ghost { background: #334155; color: #cbd5e1; }
+  .btn-ghost:hover:not(:disabled) { background: #475569; }
+  .btn-sm { padding: 7px 14px; font-size: 0.82rem; }
+  .flex-row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  #chart-area { padding: 28px 32px; display: flex; flex-direction: column; gap: 18px; }
+  #chart-title { font-size: 1.3rem; font-weight: 700; color: #e2e8f0; }
+  #vote-count { font-size: 0.9rem; color: #64748b; }
+  #chart-wrap { position: relative; flex: 1; min-height: 320px; max-height: 520px; }
+
+  #q-nav { display: flex; gap: 8px; flex-wrap: wrap; }
+  .q-nav-btn {
+    padding: 8px 14px; border-radius: 8px; border: 2px solid #334155;
+    background: #1e293b; color: #94a3b8; cursor: pointer; font-size: 0.85rem; transition: all 0.15s;
+  }
+  .q-nav-btn:hover { border-color: #3b82f6; color: #93c5fd; }
+  .q-nav-btn.active { background: #1e3a5f; border-color: #3b82f6; color: #93c5fd; font-weight: 700; }
+
+  #qr-img { border-radius: 12px; border: 3px solid #1e3a5f; max-width: 160px; display: none; }
+  #respondent-url { font-size: 0.75rem; color: #64748b; word-break: break-all; margin-bottom: 8px; }
+  #error-msg { color: #f87171; font-size: 0.85rem; }
+
+  @media (max-width: 768px) {
+    .main-grid { grid-template-columns: 1fr; }
+    #sidebar { border-right: none; border-bottom: 1px solid #334155; }
+  }
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <h1>🎛️ Admin Panel</h1>
+  <input type="password" id="pwd-input" placeholder="Admin password" autofocus/>
+  <button onclick="doLogin()">Login</button>
+  <div id="login-error"></div>
+</div>
+
+<div id="admin-screen">
+  <header>
+    <h1>🎛️ Audience Response – Admin</h1>
+    <div style="display:flex;align-items:center;gap:16px;">
+      <div id="session-status">No active session</div>
+      <div id="live-badge"><span class="dot"></span> LIVE</div>
+    </div>
+  </header>
+
+  <div class="main-grid">
+    <div id="sidebar">
+
+      <div>
+        <div class="section-title">Session Setup</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div>
+            <label>Number of Questions</label>
+            <input type="number" id="num-questions" min="1" max="20" value="1" onchange="buildQSetup()"/>
+          </div>
+          <div>
+            <label>Allow answer changes?</label>
+            <select id="allow-changes">
+              <option value="no">No – final submission</option>
+              <option value="yes">Yes – respondents can change</option>
+            </select>
+          </div>
+          <div id="questions-setup"></div>
+          <div class="flex-row">
+            <button class="btn btn-success" id="start-btn" onclick="startSession()">▶ Start Session</button>
+            <button class="btn btn-danger" id="end-btn" onclick="endSession()" disabled>■ End Session</button>
+          </div>
+          <div id="error-msg"></div>
+        </div>
+      </div>
+
+      <div id="q-nav-section" style="display:none">
+        <div class="section-title">Navigate Questions</div>
+        <div id="q-nav"></div>
+      </div>
+
+      <div id="controls-section" style="display:none">
+        <div class="section-title">Graph Controls</div>
+        <div class="flex-row">
+          <button class="btn btn-ghost btn-sm" onclick="toggleLive()">⏸ Pause Live</button>
+          <button class="btn btn-ghost btn-sm" onclick="manualRefresh()">↻ Refresh Now</button>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-title">Respondent URL &amp; QR Code</div>
+        <div id="respondent-url">Loading…</div>
+        <img id="qr-img" src="" alt="QR Code"/>
+        <div style="margin-top:8px">
+          <button class="btn btn-ghost btn-sm" onclick="downloadQR()">⬇ Download QR</button>
+        </div>
+      </div>
+
+    </div>
+
+    <div id="chart-area">
+      <div>
+        <div id="chart-title">Waiting for session…</div>
+        <div id="vote-count"></div>
+      </div>
+      <div id="chart-wrap">
+        <canvas id="myChart"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+let adminPassword = '';
+let socket = null;
+let chart = null;
+let liveMode = true;
+let latestResults = null;
+
+function doLogin() {
+  const pwd = document.getElementById('pwd-input').value;
+  fetch('/api/admin/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ password: pwd })
+  }).then(r => r.json()).then(data => {
+    if (data.ok) {
+      adminPassword = pwd;
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('admin-screen').style.display = 'flex';
+      initAdmin();
+    } else {
+      document.getElementById('login-error').textContent = 'Wrong password. Try again.';
+    }
+  });
+}
+document.getElementById('pwd-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
+
+function initAdmin() {
+  buildQSetup();
+  loadQR();
+  initChart();
+  connectSocket();
+}
+
+function buildQSetup() {
+  const n = parseInt(document.getElementById('num-questions').value) || 1;
+  const container = document.getElementById('questions-setup');
+  const existing = [];
+  container.querySelectorAll('.q-row').forEach(row => {
+    existing.push({
+      label: row.querySelector('.q-label-input')?.value || '',
+      optionCount: row.querySelector('.q-opt-input')?.value || ''
+    });
+  });
+  container.innerHTML = '';
+  for (let i = 0; i < n; i++) {
+    const prev = existing[i] || {};
+    const row = document.createElement('div');
+    row.className = 'q-row';
+    row.innerHTML = `
+      <div class="q-title">Question ${i + 1}</div>
+      <label>Label (shown on graph)</label>
+      <input class="q-label-input" type="text" value="${prev.label || `Question ${i + 1}`}" placeholder="Question ${i + 1}"/>
+      <label style="margin-top:8px">Number of options (1–10, blank = 10)</label>
+      <input class="q-opt-input" type="number" min="1" max="10" value="${prev.optionCount || ''}" placeholder="Default: 10"/>
+    `;
+    container.appendChild(row);
+  }
+}
+
+function connectSocket() {
+  socket = io();
+
+  socket.on('session_state', (state) => {
+    const isActive = state.active;
+    document.getElementById('session-status').textContent = isActive
+      ? `Live – Q${state.currentQuestion + 1} of ${state.totalQuestions}`
+      : 'No active session';
+    document.getElementById('live-badge').style.display = isActive ? 'inline-flex' : 'none';
+    document.getElementById('start-btn').disabled = isActive;
+    document.getElementById('end-btn').disabled = !isActive;
+    document.getElementById('q-nav-section').style.display = isActive ? 'block' : 'none';
+    document.getElementById('controls-section').style.display = isActive ? 'block' : 'none';
+    if (isActive) {
+      buildQNav(state.totalQuestions, state.currentQuestion);
+      document.getElementById('chart-title').textContent = state.currentLabel || `Question ${state.currentQuestion + 1}`;
+    } else {
+      document.getElementById('chart-title').textContent = 'No active session';
+      document.getElementById('vote-count').textContent = '';
+    }
+  });
+
+  socket.on('results_update', (data) => {
+    latestResults = data;
+    if (liveMode) renderChart(data);
+  });
+}
+
+function startSession() {
+  const rows = document.querySelectorAll('.q-row');
+  const questions = Array.from(rows).map(row => ({
+    label: row.querySelector('.q-label-input').value || 'Question',
+    optionCount: parseInt(row.querySelector('.q-opt-input').value) || 10
+  }));
+  const allowChanges = document.getElementById('allow-changes').value === 'yes';
+  socket.emit('admin_start', { password: adminPassword, questions, allowChanges });
+}
+
+function endSession() {
+  if (!confirm('End the current session?')) return;
+  socket.emit('admin_end', { password: adminPassword });
+}
+
+function gotoQuestion(qIndex) {
+  socket.emit('admin_goto', { password: adminPassword, qIndex });
+}
+
+function manualRefresh() {
+  socket.emit('admin_refresh', { password: adminPassword });
+}
+
+function toggleLive() {
+  liveMode = !liveMode;
+  const btn = document.querySelector('[onclick="toggleLive()"]');
+  btn.textContent = liveMode ? '⏸ Pause Live' : '▶ Resume Live';
+  if (liveMode && latestResults) renderChart(latestResults);
+}
+
+function buildQNav(total, active) {
+  const nav = document.getElementById('q-nav');
+  nav.innerHTML = '';
+  for (let i = 0; i < total; i++) {
+    const btn = document.createElement('button');
+    btn.className = 'q-nav-btn' + (i === active ? ' active' : '');
+    btn.textContent = `Q${i + 1}`;
+    btn.onclick = () => gotoQuestion(i);
+    nav.appendChild(btn);
+  }
+}
+
+function initChart() {
+  const ctx = document.getElementById('myChart').getContext('2d');
+  chart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: [],
+      datasets: [{
+        label: 'Votes',
+        data: [],
+        backgroundColor: 'rgba(37, 99, 235, 0.75)',
+        borderColor: 'rgba(59, 130, 246, 1)',
+        borderWidth: 2,
+        borderRadius: 8,
+        hoverBackgroundColor: 'rgba(59, 130, 246, 0.9)'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 400 },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => ` ${ctx.parsed.y} vote${ctx.parsed.y !== 1 ? 's' : ''}`
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { color: '#94a3b8', stepSize: 1, precision: 0 },
+          grid: { color: '#1e293b' }
+        },
+        x: {
+          ticks: { color: '#94a3b8', font: { size: 16, weight: '700' } },
+          grid: { display: false }
+        }
+      }
+    }
+  });
+}
+
+function renderChart(data) {
+  const { results, optionCount, totalVoters, label, qIndex } = data;
+  const labels = [], values = [];
+  for (let i = 0; i < optionCount; i++) {
+    labels.push(String(i));
+    values.push(results[i] || 0);
+  }
+  chart.data.labels = labels;
+  chart.data.datasets[0].data = values;
+  chart.update();
+  document.getElementById('chart-title').textContent = label || `Question ${qIndex + 1}`;
+  document.getElementById('vote-count').textContent =
+    `${totalVoters} respondent${totalVoters !== 1 ? 's' : ''} connected`;
+  document.querySelectorAll('.q-nav-btn').forEach((btn, i) => {
+    btn.classList.toggle('active', i === qIndex);
+  });
+}
+
+function loadQR() {
+  const base = window.location.origin;
+  document.getElementById('respondent-url').textContent = base;
+  fetch(`/api/qr?url=${encodeURIComponent(base)}`)
+    .then(r => r.json()).then(d => {
+      const img = document.getElementById('qr-img');
+      img.src = d.qr;
+      img.style.display = 'block';
+    });
+}
+
+function downloadQR() {
+  const img = document.getElementById('qr-img');
+  if (!img.src) return;
+  const a = document.createElement('a');
+  a.href = img.src;
+  a.download = 'audience-response-qr.png';
+  a.click();
+}
+</script>
+</body>
+</html>
