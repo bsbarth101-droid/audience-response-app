@@ -385,10 +385,32 @@ function getStepSize(maxVotes) {
 }
 
 // ── CHART ─────────────────────────────────────────────────────────────────────
+
+// Plugin to draw vote counts on top of each bar
+const barLabelPlugin = {
+  id: 'barLabels',
+  afterDatasetsDraw(chart) {
+    const { ctx, data } = chart;
+    const dataset = chart.getDatasetMeta(0);
+    data.datasets[0].data.forEach((value, i) => {
+      if (value === 0) return;
+      const bar = dataset.data[i];
+      ctx.save();
+      ctx.font = 'bold 16px Segoe UI, Arial, sans-serif';
+      ctx.fillStyle = '#111827';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      ctx.fillText(value, bar.x, bar.y - 4);
+      ctx.restore();
+    });
+  }
+};
+
 function initChart() {
   const ctx = document.getElementById('myChart').getContext('2d');
   chart = new Chart(ctx, {
     type: 'bar',
+    plugins: [barLabelPlugin],
     data: {
       labels: [],
       datasets: [{
@@ -405,6 +427,7 @@ function initChart() {
       responsive: true,
       maintainAspectRatio: false,
       animation: { duration: 400 },
+      layout: { padding: { top: 24 } },
       plugins: {
         legend: { display: false },
         tooltip: {
