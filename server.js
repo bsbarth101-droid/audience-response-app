@@ -11,11 +11,9 @@ const io = new Server(server);
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin1234';
 const PORT = process.env.PORT || 3000;
 
-// Serve static files from the public folder
 app.use(express.static(path.join(process.cwd(), 'public')));
 app.use(express.json());
 
-// In-memory session state
 let session = {
   active: false,
   currentQuestion: 0,
@@ -32,7 +30,7 @@ function resetSession(questions, allowChanges) {
     questions: questions.map((q, i) => ({
       label: q.label || `Question ${i + 1}`,
       optionCount: q.optionCount,
-      votes: {}
+      startAt: q.startAt || 0
     })),
     voters: {}
   };
@@ -52,16 +50,30 @@ function getResults(qIndex) {
 
 function broadcastResults() {
   const qIndex = session.currentQuestion;
+  const q = session.questions[qIndex];
   io.emit('results_update', {
     qIndex,
-    label: session.questions[qIndex]?.label || '',
-    optionCount: session.questions[qIndex]?.optionCount || 0,
+    label: q?.label || '',
+    optionCount: q?.optionCount || 0,
+    startAt: q?.startAt || 0,
     results: getResults(qIndex),
     totalVoters: Object.keys(session.voters).length
   });
 }
 
-// Admin login
+function currentStatePayload() {
+  const q = session.questions[session.currentQuestion];
+  return {
+    active: session.active,
+    currentQuestion: session.currentQuestion,
+    totalQuestions: session.questions.length,
+    allowChanges: session.allowChanges,
+    currentLabel: q?.label || '',
+    currentOptionCount: q?.optionCount ?? 10,
+    currentStartAt: q?.startAt ?? 0
+  };
+}
+
 app.post('/api/admin/login', (req, res) => {
   if (req.body.password === ADMIN_PASSWORD) {
     res.json({ ok: true });
@@ -70,7 +82,6 @@ app.post('/api/admin/login', (req, res) => {
   }
 });
 
-// QR code generation
 app.get('/api/qr', async (req, res) => {
   const base = req.query.url || `${req.protocol}://${req.get('host')}`;
   try {
@@ -81,41 +92,17 @@ app.get('/api/qr', async (req, res) => {
   }
 });
 
-// Current session state
 app.get('/api/state', (req, res) => {
-  res.json({
-    active: session.active,
-    currentQuestion: session.currentQuestion,
-    totalQuestions: session.questions.length,
-    allowChanges: session.allowChanges,
-    currentLabel: session.questions[session.currentQuestion]?.label || '',
-    currentOptionCount: session.questions[session.currentQuestion]?.optionCount ?? 10
-  });
+  res.json(currentStatePayload());
 });
 
-// Socket.io
 io.on('connection', (socket) => {
-
-  socket.emit('session_state', {
-    active: session.active,
-    currentQuestion: session.currentQuestion,
-    totalQuestions: session.questions.length,
-    allowChanges: session.allowChanges,
-    currentLabel: session.questions[session.currentQuestion]?.label || '',
-    currentOptionCount: session.questions[session.currentQuestion]?.optionCount ?? 10
-  });
+  socket.emit('session_state', currentStatePayload());
 
   socket.on('admin_start', ({ password, questions, allowChanges }) => {
     if (password !== ADMIN_PASSWORD) { socket.emit('admin_error', 'Wrong password'); return; }
     resetSession(questions, allowChanges);
-    io.emit('session_state', {
-      active: true,
-      currentQuestion: 0,
-      totalQuestions: session.questions.length,
-      allowChanges: session.allowChanges,
-      currentLabel: session.questions[0]?.label || '',
-      currentOptionCount: session.questions[0]?.optionCount ?? 10
-    });
+    io.emit('session_state', currentStatePayload());
     broadcastResults();
   });
 
@@ -129,15 +116,7 @@ io.on('connection', (socket) => {
     if (password !== ADMIN_PASSWORD) return;
     if (qIndex < 0 || qIndex >= session.questions.length) return;
     session.currentQuestion = qIndex;
-    const q = session.questions[qIndex];
-    io.emit('session_state', {
-      active: true,
-      currentQuestion: qIndex,
-      totalQuestions: session.questions.length,
-      allowChanges: session.allowChanges,
-      currentLabel: q.label,
-      currentOptionCount: q.optionCount
-    });
+    io.emit('session_state', currentStatePayload());
     broadcastResults();
   });
 
