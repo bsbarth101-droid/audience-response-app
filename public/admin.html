@@ -28,21 +28,13 @@
   #login-error { color: #f87171; font-size: 0.9rem; }
 
   /* ── ADMIN LAYOUT ── */
-  #admin-screen {
-    display: none;
-    flex-direction: column;
-    height: 100vh;
-  }
+  #admin-screen { display: none; flex-direction: column; height: 100vh; }
 
   /* HEADER */
   #top-bar {
-    background: #1e293b;
-    border-bottom: 1px solid #334155;
-    padding: 10px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-shrink: 0;
+    background: #1e293b; border-bottom: 1px solid #334155;
+    padding: 10px 20px; display: flex; align-items: center;
+    justify-content: space-between; flex-shrink: 0;
   }
   #top-bar h1 { font-size: 1.1rem; color: #93c5fd; }
   #live-badge {
@@ -56,17 +48,11 @@
   }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-  /* SETUP PANEL — shown before session starts */
+  /* SETUP PANEL */
   #setup-panel {
-    background: #1e293b;
-    border-bottom: 1px solid #334155;
-    padding: 16px 20px;
-    flex-shrink: 0;
-    overflow-y: auto;
-    max-height: 55vh;
+    background: #1e293b; border-bottom: 1px solid #334155;
+    padding: 16px 20px; flex-shrink: 0; overflow-y: auto; max-height: 55vh;
   }
-  #setup-panel.hidden { display: none; }
-
   .setup-row { display: flex; align-items: flex-start; gap: 20px; flex-wrap: wrap; margin-bottom: 14px; }
   .setup-field { display: flex; flex-direction: column; gap: 4px; }
   .setup-field label { font-size: 0.8rem; color: #94a3b8; }
@@ -80,26 +66,21 @@
   #questions-setup { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
   .q-row {
     background: #0f172a; border-radius: 10px; padding: 10px 14px;
-    border: 1px solid #1e3a5f; display: flex; flex-direction: column; gap: 6px; min-width: 180px;
+    border: 1px solid #1e3a5f; display: flex; flex-direction: column; gap: 6px; min-width: 200px;
   }
   .q-title { font-size: 0.8rem; color: #60a5fa; font-weight: 600; }
   .q-row label { font-size: 0.75rem; color: #94a3b8; }
-  .q-row input {
+  .q-row input, .q-row select {
     padding: 5px 8px; border-radius: 6px; border: 1.5px solid #334155;
     background: #1e293b; color: #f1f5f9; font-size: 0.82rem; outline: none; width: 100%;
   }
-  .q-row input:focus { border-color: #3b82f6; }
+  .q-row input:focus, .q-row select:focus { border-color: #3b82f6; }
 
-  /* CONTROL BAR — shown during session */
+  /* CONTROL BAR */
   #control-bar {
-    background: #1e293b;
-    border-bottom: 1px solid #334155;
-    padding: 10px 20px;
-    display: none;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
-    flex-shrink: 0;
+    background: #1e293b; border-bottom: 1px solid #334155;
+    padding: 10px 20px; display: none; align-items: center;
+    gap: 12px; flex-wrap: wrap; flex-shrink: 0;
   }
   #q-nav { display: flex; gap: 6px; flex-wrap: wrap; }
   .q-nav-btn {
@@ -108,29 +89,40 @@
   }
   .q-nav-btn:hover { border-color: #3b82f6; color: #93c5fd; }
   .q-nav-btn.active { background: #1e3a5f; border-color: #3b82f6; color: #93c5fd; font-weight: 700; }
-  .divider { width: 1px; height: 28px; background: #334155; }
+  .divider { width: 1px; height: 28px; background: #334155; flex-shrink: 0; }
 
-  /* CHART AREA — always fills remaining space */
-  #chart-area {
-    flex: 1;
-    min-height: 0;
-    padding: 20px 28px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+  /* TEST MODE */
+  #test-strip {
+    background: #1c1200; border-bottom: 1px solid #78350f;
+    padding: 7px 20px; display: none; align-items: center;
+    gap: 10px; flex-shrink: 0; flex-wrap: wrap;
   }
-  #chart-title { font-size: 1.2rem; font-weight: 700; color: #e2e8f0; flex-shrink: 0; }
-  #vote-count { font-size: 0.85rem; color: #64748b; flex-shrink: 0; }
+  #test-strip span { font-size: 0.75rem; color: #fbbf24; font-weight: 700; letter-spacing: 0.05em; }
+  .test-btn {
+    padding: 4px 12px; border-radius: 6px; border: 1px solid #78350f;
+    background: #292200; color: #fbbf24; cursor: pointer; font-size: 0.78rem;
+    font-weight: 600; transition: background 0.15s;
+  }
+  .test-btn:hover { background: #3d3300; }
+
+  /* CHART AREA — white background, always fills remaining space */
+  #chart-area {
+    flex: 1; min-height: 0; padding: 20px 28px;
+    display: flex; flex-direction: column; gap: 10px;
+    background: #ffffff;
+  }
+  #chart-title { font-size: 1.2rem; font-weight: 700; color: #111827; flex-shrink: 0; }
+  #vote-count { font-size: 0.85rem; color: #6b7280; flex-shrink: 0; }
   #chart-wrap { flex: 1; min-height: 0; position: relative; }
   #chart-wrap canvas { position: absolute; top: 0; left: 0; width: 100% !important; height: 100% !important; }
 
-  /* QR strip at bottom of chart area */
+  /* QR strip */
   #qr-strip {
     display: flex; align-items: center; gap: 16px;
-    flex-shrink: 0; padding-top: 8px; border-top: 1px solid #1e293b;
+    flex-shrink: 0; padding-top: 8px; border-top: 1px solid #e5e7eb;
   }
-  #qr-img { width: 64px; height: 64px; border-radius: 6px; border: 2px solid #1e3a5f; display: none; }
-  #respondent-url { font-size: 0.75rem; color: #475569; word-break: break-all; }
+  #qr-img { width: 64px; height: 64px; border-radius: 6px; border: 2px solid #d1d5db; display: none; }
+  #respondent-url { font-size: 0.75rem; color: #6b7280; word-break: break-all; }
 
   /* BUTTONS */
   .btn {
@@ -145,6 +137,8 @@
   .btn-danger:hover:not(:disabled)  { background: #b91c1c; }
   .btn-ghost   { background: #334155; color: #cbd5e1; }
   .btn-ghost:hover:not(:disabled)   { background: #475569; }
+  .btn-ghost-light { background: #e5e7eb; color: #374151; }
+  .btn-ghost-light:hover:not(:disabled) { background: #d1d5db; }
 
   #error-msg { color: #f87171; font-size: 0.82rem; }
   #session-status { font-size: 0.82rem; color: #64748b; }
@@ -187,7 +181,7 @@
         </select>
       </div>
       <div class="setup-field" style="justify-content:flex-end;padding-top:18px;">
-        <button class="btn btn-success" id="start-btn" onclick="startSession()">▶ Start Session</button>
+        <button class="btn btn-success" onclick="startSession()">▶ Start Session</button>
       </div>
       <div class="setup-field" style="justify-content:flex-end;padding-top:18px;">
         <div id="error-msg"></div>
@@ -198,15 +192,27 @@
 
   <!-- CONTROL BAR (during session) -->
   <div id="control-bar">
-    <button class="btn btn-danger btn-sm" onclick="endSession()">■ End Session</button>
+    <button class="btn btn-danger" style="padding:6px 14px;font-size:0.82rem;" onclick="endSession()">■ End Session</button>
     <div class="divider"></div>
     <div id="q-nav"></div>
     <div class="divider"></div>
     <button class="btn btn-ghost" style="padding:6px 12px;font-size:0.82rem;" onclick="toggleLive()">⏸ Pause</button>
     <button class="btn btn-ghost" style="padding:6px 12px;font-size:0.82rem;" onclick="manualRefresh()">↻ Refresh</button>
+    <div class="divider"></div>
+    <button class="btn btn-ghost" style="padding:6px 12px;font-size:0.82rem;background:#292200;color:#fbbf24;border:1px solid #78350f;" onclick="toggleTestMode()">🧪 Test Mode</button>
   </div>
 
-  <!-- CHART — always visible, fills all remaining space -->
+  <!-- TEST MODE STRIP -->
+  <div id="test-strip">
+    <span>🧪 TEST MODE — Simulate votes on current question:</span>
+    <button class="test-btn" onclick="simulateVotes(3)">+3 votes</button>
+    <button class="test-btn" onclick="simulateVotes(6)">+6 votes</button>
+    <button class="test-btn" onclick="simulateVotes(11)">+11 votes</button>
+    <button class="test-btn" onclick="simulateVotes(41)">+41 votes</button>
+    <button class="test-btn" onclick="simulateVotes(0)">Reset votes</button>
+  </div>
+
+  <!-- CHART AREA -->
   <div id="chart-area">
     <div id="chart-title">Waiting for session…</div>
     <div id="vote-count"></div>
@@ -216,9 +222,9 @@
     <div id="qr-strip">
       <img id="qr-img" src="" alt="QR"/>
       <div>
-        <div style="font-size:0.7rem;color:#475569;margin-bottom:2px;">RESPONDENT URL</div>
+        <div style="font-size:0.7rem;color:#9ca3af;margin-bottom:2px;">RESPONDENT URL</div>
         <div id="respondent-url">Loading…</div>
-        <button class="btn btn-ghost" style="padding:4px 10px;font-size:0.75rem;margin-top:6px;" onclick="downloadQR()">⬇ Download QR</button>
+        <button class="btn btn-ghost-light" style="padding:4px 10px;font-size:0.75rem;margin-top:6px;" onclick="downloadQR()">⬇ Download QR</button>
       </div>
     </div>
   </div>
@@ -232,7 +238,10 @@ let socket = null;
 let chart = null;
 let liveMode = true;
 let latestResults = null;
+let testModeOn = false;
+let currentSessionQuestions = [];
 
+// ── LOGIN ────────────────────────────────────────────────────────────────────
 function doLogin() {
   const pwd = document.getElementById('pwd-input').value;
   fetch('/api/admin/login', {
@@ -254,6 +263,7 @@ document.getElementById('pwd-input').addEventListener('keydown', e => {
   if (e.key === 'Enter') doLogin();
 });
 
+// ── INIT ─────────────────────────────────────────────────────────────────────
 function initAdmin() {
   buildQSetup();
   loadQR();
@@ -261,6 +271,7 @@ function initAdmin() {
   connectSocket();
 }
 
+// ── SETUP ────────────────────────────────────────────────────────────────────
 function buildQSetup() {
   const n = parseInt(document.getElementById('num-questions').value) || 1;
   const container = document.getElementById('questions-setup');
@@ -268,7 +279,8 @@ function buildQSetup() {
   container.querySelectorAll('.q-row').forEach(row => {
     existing.push({
       label: row.querySelector('.q-label-input')?.value || '',
-      optionCount: row.querySelector('.q-opt-input')?.value || ''
+      optionCount: row.querySelector('.q-opt-input')?.value || '',
+      startAt: row.querySelector('.q-start-input')?.value || '0'
     });
   });
   container.innerHTML = '';
@@ -280,13 +292,19 @@ function buildQSetup() {
       <div class="q-title">Question ${i + 1}</div>
       <label>Label (shown on graph)</label>
       <input class="q-label-input" type="text" value="${prev.label || `Question ${i + 1}`}" placeholder="Question ${i + 1}"/>
-      <label>Options (1–10, blank = 10)</label>
+      <label>Number of options (1–10, blank = 10)</label>
       <input class="q-opt-input" type="number" min="1" max="10" value="${prev.optionCount || ''}" placeholder="10"/>
+      <label>Options start at</label>
+      <select class="q-start-input">
+        <option value="0" ${(prev.startAt || '0') === '0' ? 'selected' : ''}>0 (e.g. 0, 1, 2…)</option>
+        <option value="1" ${prev.startAt === '1' ? 'selected' : ''}>1 (e.g. 1, 2, 3…)</option>
+      </select>
     `;
     container.appendChild(row);
   }
 }
 
+// ── SOCKET ───────────────────────────────────────────────────────────────────
 function connectSocket() {
   socket = io();
   socket.on('session_state', (state) => {
@@ -297,12 +315,14 @@ function connectSocket() {
     document.getElementById('live-badge').style.display = isActive ? 'inline-flex' : 'none';
     document.getElementById('setup-panel').style.display = isActive ? 'none' : 'block';
     document.getElementById('control-bar').style.display = isActive ? 'flex' : 'none';
-    if (isActive) {
-      buildQNav(state.totalQuestions, state.currentQuestion);
-      document.getElementById('chart-title').textContent = state.currentLabel || `Question ${state.currentQuestion + 1}`;
-    } else {
+    if (!isActive) {
+      document.getElementById('test-strip').style.display = 'none';
+      testModeOn = false;
       document.getElementById('chart-title').textContent = 'No active session';
       document.getElementById('vote-count').textContent = '';
+    } else {
+      buildQNav(state.totalQuestions, state.currentQuestion);
+      document.getElementById('chart-title').textContent = state.currentLabel || `Question ${state.currentQuestion + 1}`;
     }
   });
   socket.on('results_update', (data) => {
@@ -311,14 +331,16 @@ function connectSocket() {
   });
 }
 
+// ── SESSION ───────────────────────────────────────────────────────────────────
 function startSession() {
   const rows = document.querySelectorAll('.q-row');
-  const questions = Array.from(rows).map(row => ({
+  currentSessionQuestions = Array.from(rows).map(row => ({
     label: row.querySelector('.q-label-input').value || 'Question',
-    optionCount: parseInt(row.querySelector('.q-opt-input').value) || 10
+    optionCount: parseInt(row.querySelector('.q-opt-input').value) || 10,
+    startAt: parseInt(row.querySelector('.q-start-input').value) || 0
   }));
   const allowChanges = document.getElementById('allow-changes').value === 'yes';
-  socket.emit('admin_start', { password: adminPassword, questions, allowChanges });
+  socket.emit('admin_start', { password: adminPassword, questions: currentSessionQuestions, allowChanges });
 }
 
 function endSession() {
@@ -341,6 +363,7 @@ function toggleLive() {
   if (liveMode && latestResults) renderChart(latestResults);
 }
 
+// ── QUESTION NAV ──────────────────────────────────────────────────────────────
 function buildQNav(total, active) {
   const nav = document.getElementById('q-nav');
   nav.innerHTML = '';
@@ -353,6 +376,15 @@ function buildQNav(total, active) {
   }
 }
 
+// ── Y-AXIS STEP SIZE ──────────────────────────────────────────────────────────
+function getStepSize(maxVotes) {
+  if (maxVotes <= 5)  return 1;
+  if (maxVotes <= 10) return 2;
+  if (maxVotes <= 40) return 5;
+  return 10;
+}
+
+// ── CHART ─────────────────────────────────────────────────────────────────────
 function initChart() {
   const ctx = document.getElementById('myChart').getContext('2d');
   chart = new Chart(ctx, {
@@ -363,10 +395,10 @@ function initChart() {
         label: 'Votes',
         data: [],
         backgroundColor: 'rgba(37, 99, 235, 0.75)',
-        borderColor: 'rgba(59, 130, 246, 1)',
+        borderColor: 'rgba(37, 99, 235, 1)',
         borderWidth: 2,
         borderRadius: 8,
-        hoverBackgroundColor: 'rgba(59, 130, 246, 0.9)'
+        hoverBackgroundColor: 'rgba(37, 99, 235, 0.9)'
       }]
     },
     options: {
@@ -384,12 +416,15 @@ function initChart() {
       scales: {
         y: {
           beginAtZero: true,
-          ticks: { color: '#94a3b8', stepSize: 1, precision: 0 },
-          grid: { color: '#1e293b' }
+          backgroundColor: '#ffffff',
+          ticks: { color: '#111827', stepSize: 1, precision: 0, font: { size: 13 } },
+          grid: { color: '#d1d5db' },
+          border: { color: '#111827' }
         },
         x: {
-          ticks: { color: '#94a3b8', font: { size: 16, weight: '700' } },
-          grid: { display: false }
+          ticks: { color: '#111827', font: { size: 18, weight: '700' } },
+          grid: { display: false },
+          border: { color: '#111827' }
         }
       }
     }
@@ -398,14 +433,25 @@ function initChart() {
 
 function renderChart(data) {
   const { results, optionCount, totalVoters, label, qIndex } = data;
+
+  // Determine startAt for current question
+  const startAt = (currentSessionQuestions[qIndex] && currentSessionQuestions[qIndex].startAt) || 0;
+
   const labels = [], values = [];
   for (let i = 0; i < optionCount; i++) {
-    labels.push(String(i));
+    labels.push(String(i + startAt));
     values.push(results[i] || 0);
   }
+
+  // Calculate max votes and step size
+  const maxVotes = Math.max(...values, 1);
+  const stepSize = getStepSize(maxVotes);
+
   chart.data.labels = labels;
   chart.data.datasets[0].data = values;
+  chart.options.scales.y.ticks.stepSize = stepSize;
   chart.update();
+
   document.getElementById('chart-title').textContent = label || `Question ${qIndex + 1}`;
   document.getElementById('vote-count').textContent =
     `${totalVoters} respondent${totalVoters !== 1 ? 's' : ''} connected`;
@@ -414,6 +460,43 @@ function renderChart(data) {
   });
 }
 
+// ── TEST MODE ─────────────────────────────────────────────────────────────────
+function toggleTestMode() {
+  testModeOn = !testModeOn;
+  document.getElementById('test-strip').style.display = testModeOn ? 'flex' : 'none';
+  const btn = document.querySelector('[onclick="toggleTestMode()"]');
+  btn.textContent = testModeOn ? '🧪 Hide Test' : '🧪 Test Mode';
+}
+
+function simulateVotes(totalVotes) {
+  if (!latestResults) return;
+  const optionCount = latestResults.optionCount;
+  const qIndex = latestResults.qIndex;
+  const startAt = (currentSessionQuestions[qIndex] && currentSessionQuestions[qIndex].startAt) || 0;
+
+  // Distribute votes roughly evenly across options
+  const fakeResults = {};
+  for (let i = 0; i < optionCount; i++) fakeResults[i] = 0;
+
+  for (let v = 0; v < totalVotes; v++) {
+    const bucket = v % optionCount;
+    fakeResults[bucket]++;
+  }
+
+  const fakeData = {
+    qIndex,
+    label: latestResults.label,
+    optionCount,
+    results: fakeResults,
+    totalVoters: totalVotes
+  };
+
+  renderChart(fakeData);
+  document.getElementById('vote-count').textContent =
+    `${totalVotes} simulated vote${totalVotes !== 1 ? 's' : ''} (TEST MODE)`;
+}
+
+// ── QR ────────────────────────────────────────────────────────────────────────
 function loadQR() {
   const base = window.location.origin;
   document.getElementById('respondent-url').textContent = base;
